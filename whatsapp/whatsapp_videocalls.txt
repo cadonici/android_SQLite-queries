@@ -1,0 +1,29 @@
+/* Database: msgstore.db
+filter only videocalls in chronological order */
+
+SELECT 
+    CASE
+        WHEN call_log.from_me = 1 THEN 'outgoing'
+        WHEN call_log.from_me = 0 THEN 'incoming'
+    END AS Direction,
+    strftime('%H:%M:%S %d/%m/%Y', call_log."timestamp"/1000, 'unixepoch') AS Timestamp,
+    CASE
+        WHEN call_log.group_jid_row_id <> 0 THEN 
+            (SELECT GROUP_CONCAT(jid.user)
+             FROM jid
+             JOIN group_participant_user ON jid._id = group_participant_user.user_jid_row_id
+             WHERE group_participant_user.group_jid_row_id = call_log.group_jid_row_id
+               AND jid.user <> '' AND jid.user <> '0')
+        ELSE jid_user.user
+    END AS Participants,
+    CASE
+        WHEN call_log.call_result = 5 THEN 'Answered'
+        ELSE 'Not answered'
+    END AS "Call result",
+    strftime('%H:%M:%S', call_log.duration, 'unixepoch') AS Duration,
+    call_log.bytes_transferred AS 'Transferred bytes'   
+FROM call_log
+LEFT JOIN jid AS jid_group ON call_log.group_jid_row_id = jid_group._id
+JOIN jid AS jid_user ON call_log.jid_row_id = jid_user._id
+WHERE call_log.video_call = 1
+ORDER BY call_log."timestamp" DESC;
