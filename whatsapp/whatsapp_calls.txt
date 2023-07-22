@@ -1,14 +1,13 @@
 /* Database: msgstore.db
-filter only videocalls in chronological order */
+filter WhatsApp calls in chronological order by specifying whether they are audio or video calls */
 
-SELECT
-    strftime('%H:%M:%S %d/%m/%Y', call_log."timestamp"/1000, 'unixepoch') AS Timestamp, 
-    CASE
+SELECT 
+   strftime('%H:%M:%S %d/%m/%Y', call_log."timestamp"/1000, 'unixepoch') AS Timestamp, 
+   CASE
         WHEN call_log.from_me = 1 THEN 'Outgoing'
         WHEN call_log.from_me = 0 THEN 'Incoming'
     END AS Direction,
-    
-    CASE
+       CASE
         WHEN call_log.group_jid_row_id <> 0 THEN 
             (SELECT GROUP_CONCAT(jid.user)
              FROM jid
@@ -22,9 +21,13 @@ SELECT
         ELSE 'Not answered'
     END AS "Call result",
     strftime('%H:%M:%S', call_log.duration, 'unixepoch') AS Duration,
-    call_log.bytes_transferred AS 'Transferred bytes'   
+	CASE
+		WHEN call_log.video_call = 0 THEN 'No'
+		WHEN call_log.video_call = 1 THEN 'Yes'
+	END AS 'Video call',
+	call_log.bytes_transferred AS 'Transferred bytes'   
 FROM call_log
 LEFT JOIN jid AS jid_group ON call_log.group_jid_row_id = jid_group._id
 JOIN jid AS jid_user ON call_log.jid_row_id = jid_user._id
-WHERE call_log.video_call = 1
+/*WHERE call_log.video_call = 1*/
 ORDER BY call_log."timestamp" DESC;
