@@ -1,0 +1,13 @@
+/* Databases: wa.db
+show WhatsApp names associated with contacts and their stored phone numbers*/
+SELECT 
+number AS 'Phone Number',
+display_name AS 'Display Name',
+wa_name AS 'WhatsApp Name'
+
+FROM 
+wa_contacts
+WHERE wa_name IS NOT NULL 
+AND is_whatsapp_user = 1
+AND display_name IS NOT NULL
+ORDER by display_name
