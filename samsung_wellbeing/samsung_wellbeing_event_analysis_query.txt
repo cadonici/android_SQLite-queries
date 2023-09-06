@@ -11,7 +11,7 @@ SELECT
     WHEN eventType = 7 THEN '7 - User interaction'
     WHEN eventType = 11 THEN '11 - Standby bucket change'
     WHEN eventType = 12 THEN '12 - Notification'
-    WHEN eventType = 16 THEN '15 - Screen interactive'
+    WHEN eventType = 15 THEN '15 - Screen interactive'
     WHEN eventType = 16 THEN '16 - Screen non interactive'
     WHEN eventType = 18 THEN '18 - device unlocked'
     WHEN eventType = 19 THEN '19 - Foreground service start'
