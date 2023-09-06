@@ -1,0 +1,17 @@
+-- Android Wellbeing User Interaction events
+-- Query for events with maximum probability of direct user interaction
+
+SELECT 
+  eventID,
+  strftime('%Y-%m-%d %H:%M:%S.', "timeStamp"/1000, 'unixepoch') || ("timeStamp"%1000) AS Timestamp,
+  CASE
+    WHEN eventType = 7 THEN '7 - User interaction'
+    WHEN eventType = 18 THEN '18 - screen unlocked'
+    WHEN eventType = 26 THEN '26 - device shutdown'
+    WHEN eventType = 27 THEN '27 - device boot'
+    ELSE eventType
+  END AS EventTypeDescription
+FROM usageEvents
+WHERE
+  eventType IN (7, 18, 26, 27)
+ORDER BY timeStamp DESC;
